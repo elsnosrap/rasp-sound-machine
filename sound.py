@@ -51,6 +51,12 @@ while True:
     if input_state == False:
         print("Button Pressed")
 
+        # If this is the last file, kill the sound, reset our count and restart the loop
+        if curFilePos == totalFiles:
+            curPID.kill()
+            curFilePos = 0
+            continue
+
         # Kill the old sound if it's playing
         if curPID != 0:
             curPID.kill()
@@ -59,10 +65,10 @@ while True:
         curPID = subprocess.Popen([SOUND_APP, SOUNDS_DIR + "/" + files[curFilePos]])
 
         # Print out PID
-        print("PID: %d" % pid.pid)
+        print("PID: %d" % curPID.pid)
 
         # Increment the current file position
-        curFilePos++
+        curFilePos += 1
 
         # sleep for 500ms to ensure button isn't clicked too quickly
         time.sleep(.5)
