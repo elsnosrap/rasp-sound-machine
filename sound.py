@@ -8,7 +8,7 @@ CONSTANTS
 '''
 
 # Directory where all the sounds we play can be found
-SOUNDS_DIR = "/Users/tparsons/dev/git/rasp-sound-machine/sounds"
+SOUNDS_DIR = "/home/pi/rasp-sound-machine/sounds"
 
 # Name of the app used to play the sound
 SOUND_APP = "aplay"
@@ -53,8 +53,12 @@ while True:
 
         # If this is the last file, kill the sound, reset our count and restart the loop
         if curFilePos == totalFiles:
+            print("Killing sound and stopping playback")
             curPID.kill()
             curFilePos = 0
+            
+            # Sleep to ensure button isn't clicked too quickly
+            time.sleep(.5)
             continue
 
         # Kill the old sound if it's playing
@@ -62,6 +66,7 @@ while True:
             curPID.kill()
         
         # Spawn a child process to play button
+        print("Playing sound %s" % files[curFilePos])
         curPID = subprocess.Popen([SOUND_APP, SOUNDS_DIR + "/" + files[curFilePos]])
 
         # Print out PID
@@ -70,8 +75,6 @@ while True:
         # Increment the current file position
         curFilePos += 1
 
-        # sleep for 500ms to ensure button isn't clicked too quickly
+        # Sleep to ensure button isn't clicked too quickly
         time.sleep(.5)
-
-        print("Awaiting another button press")
 
