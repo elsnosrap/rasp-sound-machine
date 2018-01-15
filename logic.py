@@ -6,14 +6,27 @@ import threading
 # This file is used to implement the logic in sound.py only
 # on any other machine than a raspberry pi
 
+'''
+SCRIPT LOGIC:
+When a button is pressed, do the following:
+Play a sound for 20 minutes.
+If a sound is already playing, play the next sound in the directory.
+If at end of sound list, stop playing.
+'''
+
+
+'''
+CONSTANTS
+'''
+
 # Directory where all the sounds we play can be found
-SOUNDS_DIR = "/Users/tparsons/dev/git/rasp-sound-machine/short-sounds"
+SOUNDS_DIR = "/Users/tparsons/dev/git/rasp-sound-machine/sounds"
 
 # Name of the app used to play the sound
 SOUND_ARGS = ["sox-macosx/play", "-q", "-V 0"]
 
-# The number of seconds to play a sound for
-SECONDS_TO_PLAY = 10
+# The number of seconds to play a sound for (20 minutes)
+SECONDS_TO_PLAY = 1200
 
 '''
 INITIAL SETUP
@@ -31,12 +44,6 @@ curFilePos = 0
 # Keeps track of the PID for the currently playing sound
 curPID = 0
 
-'''
-TODO: When a button is pressed, do the following:
-Play a sound for 20 minutes
-If a sound is already playing, play another sound
-If at end of sound list, stop playing
-'''
 # Our method that plays back a sound in a separate thread
 def playback(audioFile):
     args = list(SOUND_ARGS)
@@ -45,7 +52,6 @@ def playback(audioFile):
 
     # Make note of when playback started
     startTime = time.time()
-    print("Start time: %d" % startTime)
 
     while True:
         # Start playback
@@ -54,16 +60,16 @@ def playback(audioFile):
 
         # Wait for sound to finish playing
         curPID.wait()
+        
+        # Check to see if we were killed, if so, exit the loop
+        if (curPID.returncode == -9):
+            break;
 
         # Check if we should start playback, or stop
         curTime = time.time()
-        print('Current time: {}'.format(curTime))
-        print('startTime + SECONDS_TO_PLAY: {}'.format(startTime + SECONDS_TO_PLAY))
         if curTime > startTime + SECONDS_TO_PLAY:
-            print("We've played enough, we're done here")
             break;
         else:
-            print("Haven't played enough, continue")
             continue;
 
 '''
