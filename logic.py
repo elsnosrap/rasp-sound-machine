@@ -12,6 +12,9 @@ SOUNDS_DIR = "/Users/tparsons/dev/git/rasp-sound-machine/short-sounds"
 # Name of the app used to play the sound
 SOUND_ARGS = ["sox-macosx/play", "-q", "-V 0"]
 
+# The number of seconds to play a sound for
+SECONDS_TO_PLAY = 10
+
 '''
 INITIAL SETUP
 '''
@@ -40,13 +43,28 @@ def playback(audioFile):
     args.append(audioFile)
     global curPID
 
-    curPID = subprocess.Popen(args)
+    # Make note of when playback started
+    startTime = time.time()
+    print("Start time: %d" % startTime)
 
-    # Print out PID
-    print("PID: %d" % curPID.pid)
+    while True:
+        # Start playback
+        curPID = subprocess.Popen(args)
+        print("PID: %d" % curPID.pid)
 
-    # Wait for sound to finish playing
-    curPID.wait()
+        # Wait for sound to finish playing
+        curPID.wait()
+
+        # Check if we should start playback, or stop
+        curTime = time.time()
+        print('Current time: {}'.format(curTime))
+        print('startTime + SECONDS_TO_PLAY: {}'.format(startTime + SECONDS_TO_PLAY))
+        if curTime > startTime + SECONDS_TO_PLAY:
+            print("We've played enough, we're done here")
+            break;
+        else:
+            print("Haven't played enough, continue")
+            continue;
 
 '''
 LOOP, WAITING FOR BUTTON PRESS
