@@ -9,7 +9,7 @@ from os import listdir
 SOUNDS_DIR = "/Users/tparsons/dev/git/rasp-sound-machine/sounds"
 
 # Name of the app used to play the sound
-SOUND_APP = "sox-macosx/play"
+SOUND_ARGS = ["sox-macosx/play", "-q"]
 
 '''
 INITIAL SETUP
@@ -43,10 +43,14 @@ while True:
 
     print("Button Pressed")
     
-    # File this is the last file, kill the sound, reset our count and restart the loop
+    # If this is the last file, kill the sound, reset our count and restart the loop
     if curFilePos == totalFiles:
+        print("Killing sound and stopping playback")
         curPID.kill()
         curFilePos = 0
+            
+        # Sleep to ensure button isn't clicked too quickly
+        time.sleep(.5)
         continue
 
     # Kill the old sound if it's playing
@@ -54,7 +58,10 @@ while True:
         curPID.kill()
     
     # Spawn a child process to play button
-    curPID = subprocess.Popen([SOUND_APP, "-q", SOUNDS_DIR + "/" + files[curFilePos]])
+    print("Playing sound %s" % files[curFilePos])
+    args = list(SOUND_ARGS)
+    args.append(SOUNDS_DIR + "/" + files[curFilePos])
+    curPID = subprocess.Popen(args)
 
     # Print out PID
     print("PID: %d" % curPID.pid)
@@ -62,5 +69,5 @@ while True:
     # Increment the current file position
     curFilePos += 1
 
-    # sleep for 500ms to ensure button isn't clicked too quickly
+    # Sleep to ensure button isn't clicked too quickly
     time.sleep(.5)

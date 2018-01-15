@@ -11,7 +11,7 @@ CONSTANTS
 SOUNDS_DIR = "/home/pi/rasp-sound-machine/sounds"
 
 # Name of the app used to play the sound
-SOUND_APP = "aplay"
+SOUND_ARGS = ["aplay"]
 
 # The GPIO PIN we're listening to
 GPIO_PIN = 4
@@ -67,7 +67,9 @@ while True:
         
         # Spawn a child process to play button
         print("Playing sound %s" % files[curFilePos])
-        curPID = subprocess.Popen([SOUND_APP, SOUNDS_DIR + "/" + files[curFilePos]])
+        args = list(SOUND_ARGS)
+        args.append(SOUNDS_DIR + "/" + files[curFilePos])
+        curPID = subprocess.Popen(args)
 
         # Print out PID
         print("PID: %d" % curPID.pid)
